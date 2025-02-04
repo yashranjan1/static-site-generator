@@ -1,5 +1,5 @@
 import unittest
-from htmlnode import HTMLNode, LeafNode 
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html(self):
@@ -41,4 +41,66 @@ class TestHTMLNode(unittest.TestCase):
         node = LeafNode("a", "Click me!", {"href": "https://www.google.com"})
         self.assertEqual(node.to_html(), '<a href="https://www.google.com">Click me!</a>')
         
+        node = LeafNode(None, "This is just some random text.")
+        self.assertEqual(node.to_html(), "This is just some random text.")
+    
+    def test_parent_html(self):
+        node = ParentNode(
+            "p",
+            [
+                LeafNode("b", "Bold text"),
+                LeafNode(None, "Normal text"),
+                LeafNode("i", "italic text"),
+                LeafNode(None, "Normal text"),
+            ],
+        )
+
+        self.assertEqual(node.to_html(), '<p><b>Bold text</b>Normal text<i>italic text</i>Normal text</p>')
         
+        node = ParentNode(
+            "div",
+            [
+                LeafNode("b", "This is a bold leaf node"),
+                ParentNode(
+                    "div",
+                    [
+                        LeafNode("i", "This is an italics leaf node"),
+                    ],
+                    {
+                        "class": "flex gap-2"
+                    }
+                )
+            ],
+            {
+                "class": "flex flex-col gap-5"
+            }
+        )
+        
+        self.assertEqual(node.to_html(), '<div class="flex flex-col gap-5"><b>This is a bold leaf node</b><div class="flex gap-2"><i>This is an italics leaf node</i></div></div>')
+        
+        node = ParentNode(
+            "div",
+            [],
+            {
+                "id": "empty-div"
+            }
+        )
+        self.assertEqual(node.to_html(), '<div id="empty-div"></div>')
+        
+        node = ParentNode(
+            "div",
+            None,
+        )
+        
+        with self.assertRaises(ValueError):
+            node.to_html()           
+        
+        node = ParentNode(
+            None,
+            [
+                LeafNode("b", "This is a bold leaf node"),
+            ],
+        )
+        
+        with self.assertRaises(ValueError):
+            node.to_html()           

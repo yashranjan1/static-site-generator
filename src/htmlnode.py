@@ -1,5 +1,3 @@
-from enum import Enum
-
 class HTMLNode():
     """
         Class used to create HTML node objects
@@ -88,3 +86,19 @@ class LeafNode(HTMLNode):
         if (self.tag == None):
             return self.value
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+    
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag, None, children, props)
+    
+    def to_html(self):
+        if self.tag == None:
+            raise ValueError("parent node needs a tag")
+        if self.children == None:
+            raise ValueError("parent node must have children")
+        children = ""
+        for child in self.children:
+            children += child.to_html()
+        return f"<{self.tag}{self.props_to_html()}>{children}</{self.tag}>"
+
+    
