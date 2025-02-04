@@ -1,14 +1,5 @@
 from enum import Enum
 
-class HTMLNodeType(Enum):
-    LINK = "a"
-    PTEXT = "p"
-    HEADER1 = "h1"
-    IMAGE = "img"
-    CODE = "code"
-    BOLD = "b"
-    ITALICS = "i"
-
 class HTMLNode():
     """
         Class used to create HTML node objects
@@ -20,8 +11,7 @@ class HTMLNode():
             - `props: { key: value }` => A dict containing key value pairs, where keys are the attributes that the html node can take and the values are the values of those attributes
     """
     def __init__(self, tag=None, value=None, children=None, props=None):
-        if (tag != None): self.tag = tag.value
-        else: self.tag = tag
+        self.tag = tag
         self.value = value
         self.children = children
         self.props = props
