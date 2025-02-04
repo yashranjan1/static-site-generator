@@ -16,7 +16,7 @@ class TestTextNode(unittest.TestCase):
         
         # when the type is not the same
         node = TextNode("This is a text node", TextType.BOLD)
-        node2 = TextNode("This is a text node", TextType.IMAGES)
+        node2 = TextNode("This is a text node", TextType.IMAGE)
         self.assertNotEqual(node, node2)
         
         # when both have links but the link is not the same 
