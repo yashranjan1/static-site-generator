@@ -1,4 +1,4 @@
-from helper_functions import text_node_to_html_node, split_nodes_delimiter
+from helper_functions import *
 from typing import List
 import unittest
 from textnode import TextNode, TextType
@@ -76,3 +76,74 @@ class TestHelperFuntions(unittest.TestCase):
         new_nodes: List[TextNode] = split_nodes_delimiter([node], "*", TextType.ITALIC) 
         assert len(new_nodes) == 1
         assert new_nodes[0].text_type == TextType.TEXT
+    
+
+    def test_image_extractor(self):
+        text = "This is a ![random image](https://doesntexist.com) i found"
+        result = extract_markdown_images(text)
+        assert len(result) == 1
+        assert result[0][0] == "random image"
+        assert result[0][1] == "https://doesntexist.com"
+        
+        text = "This is a ![random image](https://doesntexist.com) and ![another random image](https://doesntexist2.com) i found"
+        result = extract_markdown_images(text)
+        assert len(result) == 2
+        assert result[0][0] == "random image"
+        assert result[0][1] == "https://doesntexist.com"
+        assert result[1][0] == "another random image"
+        assert result[1][1] == "https://doesntexist2.com"
+
+        text = "This is sentence has a [random link](https://doesntexist.com) so it shouldnt not return anything."
+        result = extract_markdown_images(text)
+        assert len(result) == 0
+
+        text = "This is sentence has a [random link](https://doesntexist.com) but also a ![random image](https://doesntexist.com) and both have the same link"
+        result = extract_markdown_images(text)
+        assert len(result) == 1
+
+        text = "This is sentence has a ![random image with a few numb3r5](https://doesntexist.com) so it should return something"
+        result = extract_markdown_images(text)
+        assert len(result) == 1
+
+        text = "This is sentence has a !]broken image](https://doesntexist.com) so it shouldnt not return anything."
+        result = extract_markdown_images(text)
+        assert len(result) == 0
+
+        text = "This is sentence has a ![broken image])https://doesntexist.com) so it shouldnt not return anything."
+        result = extract_markdown_images(text)
+        assert len(result) == 0
+
+    def test_link_extractor(self):
+        text = "This is a [random link](https://doesntexist.com) i found"
+        result = extract_markdown_links(text)
+        assert len(result) == 1
+        assert result[0][0] == "random link"
+        assert result[0][1] == "https://doesntexist.com"
+        
+        text = "This is a [random link](https://doesntexist.com) and [another random link](https://doesntexist2.com) i found"
+        result = extract_markdown_links(text)
+        assert len(result) == 2
+        assert result[0][0] == "random link"
+        assert result[0][1] == "https://doesntexist.com"
+        assert result[1][0] == "another random link"
+        assert result[1][1] == "https://doesntexist2.com"
+
+        text = "This is sentence has a ![random image](https://doesntexist.com) so it shouldnt not return anything."
+        result = extract_markdown_links(text)
+        assert len(result) == 0
+
+        text = "This is sentence has a [random link](https://doesntexist.com) but also a ![random image](https://doesntexist.com) and both have the same link"
+        result = extract_markdown_links(text)
+        assert len(result) == 1
+
+        text = "This is sentence has a [random link with a few numb3r5](https://doesntexist.com) so it should return something"
+        result = extract_markdown_links(text)
+        assert len(result) == 1
+
+        text = "This is sentence has a ]broke link](https://doesntexist.com) so it shouldnt return anything"
+        result = extract_markdown_links(text)
+        assert len(result) == 0
+
+        text = "This is sentence has a [broke link])https://doesntexist.com) so it shouldnt return anything"
+        result = extract_markdown_links(text)
+        assert len(result) == 0
