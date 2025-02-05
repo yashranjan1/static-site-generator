@@ -1,4 +1,5 @@
-from helper_functions import text_node_to_html_node
+from helper_functions import text_node_to_html_node, split_nodes_delimiter
+from typing import List
 import unittest
 from textnode import TextNode, TextType
 
@@ -33,5 +34,45 @@ class TestHelperFuntions(unittest.TestCase):
             "alt": "This is an image",
             "href": "https://example.com",
         }
+    
+    def test_split_by_delimiter(self):
+        node = TextNode("This text has some `code` in it.", TextType.TEXT)
+        new_nodes: List[TextNode] = split_nodes_delimiter([node], "`", TextType.CODE) 
+        assert len(new_nodes) == 3
+        assert new_nodes[0].text_type == TextType.TEXT
+        assert new_nodes[1].text_type == TextType.CODE
+        assert new_nodes[2].text_type == TextType.TEXT
+
+        node = TextNode("This text has some `code` in it.", TextType.TEXT)
+        node2 = TextNode("This text has some `more code` in it.", TextType.TEXT)
+        new_nodes: List[TextNode] = split_nodes_delimiter([node2, node], "`", TextType.CODE) 
+        assert len(new_nodes) == 6
+        assert new_nodes[0].text_type == TextType.TEXT
+        assert new_nodes[1].text_type == TextType.CODE
+        assert new_nodes[2].text_type == TextType.TEXT
+        assert new_nodes[3].text_type == TextType.TEXT
+        assert new_nodes[4].text_type == TextType.CODE
+        assert new_nodes[5].text_type == TextType.TEXT
         
-        
+        node = TextNode("This text has some **bold text** in it.", TextType.TEXT)
+        new_nodes: List[TextNode] = split_nodes_delimiter([node], "**", TextType.BOLD) 
+        assert len(new_nodes) == 3
+        assert new_nodes[0].text_type == TextType.TEXT
+        assert new_nodes[1].text_type == TextType.BOLD
+        assert new_nodes[2].text_type == TextType.TEXT
+
+        node = TextNode("This text has some *italics text* in it.", TextType.TEXT)
+        node2 = TextNode("This text has some *more italics text* in it.", TextType.TEXT)
+        new_nodes: List[TextNode] = split_nodes_delimiter([node, node2], "*", TextType.ITALIC) 
+        assert len(new_nodes) == 6
+        assert new_nodes[0].text_type == TextType.TEXT
+        assert new_nodes[1].text_type == TextType.ITALIC
+        assert new_nodes[2].text_type == TextType.TEXT
+        assert new_nodes[3].text_type == TextType.TEXT
+        assert new_nodes[4].text_type == TextType.ITALIC
+        assert new_nodes[5].text_type == TextType.TEXT
+
+        node = TextNode("This text has no delimiters in it.", TextType.TEXT)
+        new_nodes: List[TextNode] = split_nodes_delimiter([node], "*", TextType.ITALIC) 
+        assert len(new_nodes) == 1
+        assert new_nodes[0].text_type == TextType.TEXT
