@@ -74,7 +74,7 @@ def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
     
     return list(zip(alt_text_list, link_list))
 
-def extract_markdown_links(text):
+def extract_markdown_links(text) -> List[Tuple[str,str]]:
     """
         Takes text formatted in Markdown and extracts links from it and returns them in a list of tuples
         
