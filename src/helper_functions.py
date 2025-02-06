@@ -1,7 +1,7 @@
 from textnode import TextNode, TextType
 import re
 from htmlnode import LeafNode
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 def text_node_to_html_node(text_node: TextNode ):
     """
@@ -85,10 +85,39 @@ def extract_markdown_links(text) -> List[Tuple[str,str]]:
         `List[Tuple[text, link]]`
     """
     
-    text_pattern = r"[^\!]\[(.*?)\]"
+    text_pattern = r"(?<!!)\[(.*?)\]\([\w:/.]*\)"
     link_pattern = r"\[[\s\w\d]*\]\((.*?)\)"
 
     text_list = re.findall(text_pattern, text)
     link_list = re.findall(link_pattern, text)
     
     return list(zip(text_list, link_list))
+
+def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        node_text = node.text
+        links = extract_markdown_links(node_text)
+        if len(links) == 0:
+            new_nodes.append(node)
+        else:
+            sections = [node_text]
+            for text, link in links:
+                sub_sections = sections[-1].split(f"[{text}]({link})", 1)            
+                sections.pop()
+                sections.extend(sub_sections)
+            for index in range(len(sections)):
+                section = sections[index]
+                is_empty = not has_content(section)
+                if not is_empty:
+                    new_nodes.append(TextNode(section, node.text_type))
+                if index != len(sections) - 1:
+                    new_nodes.append(TextNode(links[index][0], TextType.LINK, links[index][1]))
+
+    return new_nodes
+
+def split_nodes_images(old_nodes):
+    pass
+
+def has_content(text: str) -> bool:
+    return bool(text.strip())

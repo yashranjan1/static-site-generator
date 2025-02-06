@@ -147,3 +147,62 @@ class TestHelperFuntions(unittest.TestCase):
         text = "This is sentence has a [broke link])https://doesntexist.com) so it shouldnt return anything"
         result = extract_markdown_links(text)
         assert len(result) == 0
+    
+    def test_link_splitter(self):
+        text = "This is a [random link](https://doesntexist.com) i found"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_link([node])
+        assert len(result) == 3
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.LINK
+        assert result[2].text_type == TextType.TEXT
+
+        text = "This is a [random link](https://doesntexist.com) and [another random link](https://doesntexist2.com) i found"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_link([node])
+        assert len(result) == 5
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.LINK
+        assert result[2].text_type == TextType.TEXT
+        assert result[3].text_type == TextType.LINK
+        assert result[4].text_type == TextType.TEXT
+
+        text = "This is sentence has a [random link](https://doesntexist.com) but also a ![random image](https://doesntexist.com) and both have the same link"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_link([node])
+        assert len(result) == 3
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.LINK
+        assert result[2].text_type == TextType.TEXT
+        
+        text = "This is sentence has a ]broke link](https://doesntexist.com) so it shouldnt return anything"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_link([node])
+        assert len(result) == 1
+        assert result[0].text_type == TextType.TEXT
+
+        text = "This is sentence has a not links so it shouldnt return anything"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_link([node])
+        assert len(result) == 1
+        assert result[0].text_type == TextType.TEXT
+
+        text = "[random link](https://doesntexist.com) This sentence starts with a link and has a [random link](https://doesntexist.com) but also a ![random image](https://doesntexist.com) and both have the same link"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_link([node])
+        assert len(result) == 4
+        assert result[0].text_type == TextType.LINK
+        assert result[1].text_type == TextType.TEXT
+        assert result[2].text_type == TextType.LINK
+        assert result[3].text_type == TextType.TEXT
+
+        text = "This sentence has two back to back links, [random link](https://doesntexist.com) [random link](https://doesntexist.com) but also a ![random image](https://doesntexist.com) and both have the same link"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_link([node])
+        assert len(result) == 4
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.LINK
+        assert result[2].text_type == TextType.LINK
+        assert result[3].text_type == TextType.TEXT
+        
+        
