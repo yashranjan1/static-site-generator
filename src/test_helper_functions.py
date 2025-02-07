@@ -220,6 +220,7 @@ class TestHelperFuntions(unittest.TestCase):
         assert len(result) == 5
         assert result[0].text_type == TextType.TEXT
         assert result[1].text_type == TextType.IMAGE
+        assert result[1].url != None
         assert result[2].text_type == TextType.TEXT
         assert result[3].text_type == TextType.IMAGE
         assert result[4].text_type == TextType.TEXT
@@ -261,6 +262,47 @@ class TestHelperFuntions(unittest.TestCase):
         assert result[1].text_type == TextType.IMAGE
         assert result[2].text_type == TextType.IMAGE
         assert result[3].text_type == TextType.TEXT
-        
-        
 
+    def test_text_to_textnodes(self):
+        # Basic cases
+        assert text_to_textnodes("Plain text") == [
+            TextNode("Plain text", TextType.TEXT)
+        ]
+
+        assert text_to_textnodes("**Bold text**") == [
+            TextNode("Bold text", TextType.BOLD)
+        ]
+
+        assert text_to_textnodes("*Italic text*") == [
+            TextNode("Italic text", TextType.ITALIC)
+        ]
+
+        assert text_to_textnodes("`Code text`") == [
+            TextNode("Code text", TextType.CODE)
+        ]
+
+        assert text_to_textnodes("[Link](https://boot.dev)") == [
+            TextNode("Link", TextType.LINK, "https://boot.dev")
+        ]
+
+        assert text_to_textnodes("![Image](image.jpg)") == [
+            TextNode("Image", TextType.IMAGE, "image.jpg")
+        ]
+
+        nodes = text_to_textnodes("Text with [link](url) and ![image](img.jpg)")
+        assert len(nodes) == 4
+        assert nodes[0] == TextNode("Text with ", TextType.TEXT)
+        assert nodes[1] == TextNode("link", TextType.LINK, "url")
+        assert nodes[2] == TextNode(" and ", TextType.TEXT)
+        assert nodes[3] == TextNode("image", TextType.IMAGE, "img.jpg")
+
+    
+        nodes = text_to_textnodes("** **")
+        assert len(nodes) == 1
+        assert nodes[0] == TextNode(" ", TextType.BOLD)
+
+        nodes = text_to_textnodes("**Bold** **More Bold**")
+        assert len(nodes) == 3
+        assert nodes[0] == TextNode("Bold", TextType.BOLD)
+        assert nodes[1] == TextNode(" ", TextType.TEXT)
+        assert nodes[2] == TextNode("More Bold", TextType.BOLD)

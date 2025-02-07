@@ -8,7 +8,7 @@ def text_node_to_html_node(text_node: TextNode ) -> LeafNode:
         Takes a `TextNode` and converts it into an HTMLNode.
 
         Args:
-        `text_node: TextNode` => a textnode that you want converted
+        `text_node: TextNode` => a textnode that you want converted.
         
         Returns:
         `HTMLNode`
@@ -48,10 +48,10 @@ def split_nodes_delimiter(old_nodes: List[TextNode], delimiter: str, text_type: 
             if len(node_text[i]) == 0:
                 continue
             if i % 2 == 0:
-                new_node = TextNode(node_text[i], node.text_type)
+                new_node = TextNode(node_text[i], node.text_type, node.url)
                 new_nodes.append(new_node)
             else:
-                new_node = TextNode(node_text[i], text_type)
+                new_node = TextNode(node_text[i], text_type, node.url)
                 new_nodes.append(new_node)
     return new_nodes
 
@@ -86,7 +86,7 @@ def extract_markdown_links(text: str) -> List[Tuple[str,str]]:
     """
     
     text_pattern = r"(?<!!)\[(.*?)\]\([\w:/.]*\)"
-    link_pattern = r"\[[\s\w\d]*\]\((.*?)\)"
+    link_pattern = r"(?<!!)\[[\s\w\d]*\]\((.*?)\)"
 
     text_list = re.findall(text_pattern, text)
     link_list = re.findall(link_pattern, text)
@@ -116,7 +116,7 @@ def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
 
     return new_nodes
 
-def split_nodes_image(old_nodes: List[TextNode])-> List[TextNode]:
+def split_nodes_image(old_nodes: List[TextNode]) -> List[TextNode]:
     new_nodes: List[TextNode] = []
     
     for node in old_nodes:
@@ -142,3 +142,21 @@ def split_nodes_image(old_nodes: List[TextNode])-> List[TextNode]:
 
 def has_content(text: str) -> bool:
     return bool(text.strip())
+
+def text_to_textnodes(text: str) -> List[TextNode]:
+    nodes = [TextNode(text, TextType.TEXT)]
+    
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    
+    return nodes
+
+
+
+if __name__ == "__main__":
+    nodes = text_to_textnodes("This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
+    
