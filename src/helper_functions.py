@@ -66,7 +66,7 @@ def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
         `List[Tuple[alt_text, link_to_image]]`
     """
     
-    alt_text_pattern = r"\!\[(.*?)\]"
+    alt_text_pattern = r"\!\[(.*?)\]\([\w:/.]*\)"
     link_pattern = r"\!\[[\s\w\d]*\]\((.*?)\)"
     
     alt_text_list = re.findall(alt_text_pattern, text)
@@ -116,8 +116,29 @@ def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
 
     return new_nodes
 
-def split_nodes_images(old_nodes):
-    pass
+def split_nodes_image(old_nodes: List[TextNode])-> List[TextNode]:
+    new_nodes = []
+    
+    for node in old_nodes:
+        node_text = node.text
+        images = extract_markdown_images(node_text)
+        if len(images) == 0:
+            new_nodes.append(node)
+        else:
+            sections = [node_text]
+            for text, link in images:
+                sub_sections = sections[-1].split(f"![{text}]({link})", 1)            
+                sections.pop()
+                sections.extend(sub_sections)
+            for index in range(len(sections)):
+                section = sections[index]
+                is_empty = not has_content(section)
+                if not is_empty:
+                    new_nodes.append(TextNode(section, node.text_type))
+                if index != len(sections) - 1:
+                    new_nodes.append(TextNode(images[index][0], TextType.IMAGE, images[index][1]))
+    
+    return new_nodes
 
 def has_content(text: str) -> bool:
     return bool(text.strip())

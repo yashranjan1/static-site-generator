@@ -205,4 +205,62 @@ class TestHelperFuntions(unittest.TestCase):
         assert result[2].text_type == TextType.LINK
         assert result[3].text_type == TextType.TEXT
         
+    def test_image_splitter(self):
+        text = "This is a ![random image](https://doesntexist.com) i found"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_image([node])
+        assert len(result) == 3
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.IMAGE
+        assert result[2].text_type == TextType.TEXT
+
+        text = "This is a ![random image](https://doesntexist.com) and ![another random image](https://doesntexist2.com) i found"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_image([node])
+        assert len(result) == 5
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.IMAGE
+        assert result[2].text_type == TextType.TEXT
+        assert result[3].text_type == TextType.IMAGE
+        assert result[4].text_type == TextType.TEXT
+
+        text = "This is sentence has a ![random image](https://doesntexist.com) but also a [random link](https://doesntexist.com) and both have the same link"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_image([node])
+        assert len(result) == 3
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.IMAGE
+        assert result[2].text_type == TextType.TEXT
         
+        text = "This is sentence has a !]broke image](https://doesntexist.com) so it shouldnt return anything"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_image([node])
+        assert len(result) == 1
+        assert result[0].text_type == TextType.TEXT
+
+        text = "This is sentence has a not links so it shouldnt return anything"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_image([node])
+        assert len(result) == 1
+        assert result[0].text_type == TextType.TEXT
+
+        text = "![random image](https://doesntexist.com) This sentence starts with a link and has a ![random image](https://doesntexist.com) but also a [random link](https://doesntexist.com) and all have the same link"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_image([node])
+        assert len(result) == 4
+        assert result[0].text_type == TextType.IMAGE
+        assert result[1].text_type == TextType.TEXT
+        assert result[2].text_type == TextType.IMAGE
+        assert result[3].text_type == TextType.TEXT
+
+        text = "This sentence has two back to back images, ![random image](https://doesntexist.com) ![random image](https://doesntexist.com) but also a [random link](https://doesntexist.com) and all have the same link"
+        node = TextNode(text, TextType.TEXT)
+        result = split_nodes_image([node])
+        assert len(result) == 4
+        assert result[0].text_type == TextType.TEXT
+        assert result[1].text_type == TextType.IMAGE
+        assert result[2].text_type == TextType.IMAGE
+        assert result[3].text_type == TextType.TEXT
+        
+        
+
