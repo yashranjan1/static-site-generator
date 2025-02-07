@@ -6,7 +6,7 @@ from textnode import TextNode, TextType
 class TestHelperFuntions(unittest.TestCase):
     def test_conversion_function(self):
         text_node = TextNode("Hello, world!", TextType.TEXT)
-        html_node = text_node_to_html_node(text_node)
+        html_node: LeafNode = text_node_to_html_node(text_node)
         assert html_node.tag is None
         assert html_node.value == "Hello, world!" 
         

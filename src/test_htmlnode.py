@@ -87,16 +87,17 @@ class TestHTMLNode(unittest.TestCase):
         )
         self.assertEqual(node.to_html(), '<div id="empty-div"></div>')
         
+        # ignoring the below checks because they are supposed to fail
         node = ParentNode(
             "div",
-            None,
+            None, # type: ignore
         )
         
         with self.assertRaises(ValueError):
             node.to_html()           
         
         node = ParentNode(
-            None,
+            None, # type: ignore
             [
                 LeafNode("b", "This is a bold leaf node"),
             ],

@@ -1,9 +1,9 @@
 from textnode import TextNode, TextType
 import re
 from htmlnode import LeafNode
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
-def text_node_to_html_node(text_node: TextNode ):
+def text_node_to_html_node(text_node: TextNode ) -> LeafNode:
     """
         Takes a `TextNode` and converts it into an HTMLNode.
 
@@ -23,9 +23,9 @@ def text_node_to_html_node(text_node: TextNode ):
         case TextType.CODE:
             return LeafNode("code", text_node.text)
         case TextType.LINK:
-            return LeafNode("a", text_node.text, { "href": text_node.url })
+            return LeafNode("a", text_node.text, { "href": text_node.url or "" })
         case TextType.IMAGE:
-            return LeafNode("img", "", { "src": text_node.url, "alt": text_node.text })
+            return LeafNode("img", "", { "src": text_node.url or "", "alt": text_node.text })
         case _:
             raise Exception("invalid type")
         
@@ -41,7 +41,7 @@ def split_nodes_delimiter(old_nodes: List[TextNode], delimiter: str, text_type: 
         Returns:
         `List[TextNode]`
     """
-    new_nodes = []
+    new_nodes: List[TextNode] = []
     for node in old_nodes:
         node_text = node.text.split(delimiter)
         for i in range(len(node_text)):
@@ -74,7 +74,7 @@ def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
     
     return list(zip(alt_text_list, link_list))
 
-def extract_markdown_links(text) -> List[Tuple[str,str]]:
+def extract_markdown_links(text: str) -> List[Tuple[str,str]]:
     """
         Takes text formatted in Markdown and extracts links from it and returns them in a list of tuples
         
@@ -94,7 +94,7 @@ def extract_markdown_links(text) -> List[Tuple[str,str]]:
     return list(zip(text_list, link_list))
 
 def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
-    new_nodes = []
+    new_nodes: List[TextNode] = []
     for node in old_nodes:
         node_text = node.text
         links = extract_markdown_links(node_text)
@@ -117,7 +117,7 @@ def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
     return new_nodes
 
 def split_nodes_image(old_nodes: List[TextNode])-> List[TextNode]:
-    new_nodes = []
+    new_nodes: List[TextNode] = []
     
     for node in old_nodes:
         node_text = node.text
