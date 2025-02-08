@@ -306,3 +306,31 @@ class TestHelperFuntions(unittest.TestCase):
         assert nodes[0] == TextNode("Bold", TextType.BOLD)
         assert nodes[1] == TextNode(" ", TextType.TEXT)
         assert nodes[2] == TextNode("More Bold", TextType.BOLD)
+    
+    def test_md_to_block(self):
+        test = """# This is a heading
+
+This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+* This is the first list item in a list block
+* This is a list item
+* This is another list item"""
+        
+        result = markdown_to_blocks(test)
+
+        assert len(result) == 3
+        
+
+        test = """       # This is a heading
+
+
+         This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+
+     * This is the first list item in a list block      
+  * This is a list item        
+    * This is another list item"""
+
+        assert len(result) == 3
+        for block in result:
+            assert block[0] != " "

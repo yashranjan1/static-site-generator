@@ -155,8 +155,11 @@ def text_to_textnodes(text: str) -> List[TextNode]:
     
     return nodes
 
-
-
-if __name__ == "__main__":
-    nodes = text_to_textnodes("This is **text** with an *italic* word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)")
+def markdown_to_blocks(markdown: str) -> List[str]:
+    blocks = markdown.split("\n\n")
     
+    blocks = filter(lambda block: len(block) != 0, blocks)
+    
+    blocks = list(map(lambda block: block.lstrip().rstrip(), blocks))
+
+    return blocks
