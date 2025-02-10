@@ -334,3 +334,85 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
         assert len(result) == 3
         for block in result:
             assert block[0] != " "
+
+    def test_block_to_block_type(self):
+        test = "# this is a heading"
+        result = block_to_block_type(test)
+        assert result == 'h1'
+
+        test = "###### this is a heading"
+        result = block_to_block_type(test)
+        assert result == 'h6'
+
+        test = "####### this is not a heading"
+        result = block_to_block_type(test)
+        assert result == 'p'
+
+        test = "```this is some code```"
+        result = block_to_block_type(test)
+        assert result == 'code'
+
+        test = """```
+        this is some code
+        ```"""
+        result = block_to_block_type(test)
+        assert result == 'code'
+
+        test = """>alskjflkasjdf
+>aslkjflkjsadflk"""
+        result = block_to_block_type(test)
+        assert result == 'block'
+
+        test = """>alskjflkasjd
+>aslkjflkjsadflk
+aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'p'
+
+        test = """* alskjflkasjd
+* aslkjflkjsadflk
+* aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'ul'
+
+        test = """- alskjflkasjd
+- aslkjflkjsadflk
+- aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'ul'
+
+        test = """* alskjflkasjd
+* aslkjflkjsadflk
+- aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'ul'
+
+        test = """* alskjflkasjd
+* aslkjflkjsadflk
+ aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'p'
+
+        test = """1. alskjflkasjd
+2. aslkjflkjsadflk
+3. aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'ol'
+
+        test = """1.alskjflkasjd
+2. aslkjflkjsadflk
+3. aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'p'
+
+        test = """1. alskjflkasjd
+2. aslkjflkjsadflk
+aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'p'
+
+        test = """1. alskjflkasjd
+2. aslkjflkjsadflk
+4. aslkfjasldkfj"""
+        result = block_to_block_type(test)
+        assert result == 'p'
