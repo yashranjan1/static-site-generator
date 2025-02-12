@@ -335,84 +335,102 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
         for block in result:
             assert block[0] != " "
 
-    def test_block_to_block_type(self):
-        test = "# this is a heading"
-        result = block_to_block_type(test)
-        assert result == 'h1'
 
-        test = "###### this is a heading"
-        result = block_to_block_type(test)
-        assert result == 'h6'
+    def test_block_to_block_types(self):
+        block = "# heading"
+        self.assertEqual(block_to_block_type(block), block_type_heading)
+        block = "```\ncode\n```"
+        self.assertEqual(block_to_block_type(block), block_type_code)
+        block = "> quote\n> more quote"
+        self.assertEqual(block_to_block_type(block), block_type_quote)
+        block = "* list\n* items"
+        self.assertEqual(block_to_block_type(block), block_type_ulist)
+        block = "1. list\n2. items"
+        self.assertEqual(block_to_block_type(block), block_type_olist)
+        block = "paragraph"
+        self.assertEqual(block_to_block_type(block), block_type_paragraph)
+        self.assertEqual(block_to_block_type(block), block_type_paragraph)
 
-        test = "####### this is not a heading"
-        result = block_to_block_type(test)
-        assert result == 'p'
+    def test_paragraph(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
 
-        test = "```this is some code```"
-        result = block_to_block_type(test)
-        assert result == 'code'
+"""
 
-        test = """```
-        this is some code
-        ```"""
-        result = block_to_block_type(test)
-        assert result == 'code'
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p></div>",
+        )
 
-        test = """>alskjflkasjdf
->aslkjflkjsadflk"""
-        result = block_to_block_type(test)
-        assert result == 'block'
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
 
-        test = """>alskjflkasjd
->aslkjflkjsadflk
-aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'p'
+This is another paragraph with *italic* text and `code` here
 
-        test = """* alskjflkasjd
-* aslkjflkjsadflk
-* aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'ul'
+"""
 
-        test = """- alskjflkasjd
-- aslkjflkjsadflk
-- aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'ul'
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
 
-        test = """* alskjflkasjd
-* aslkjflkjsadflk
-- aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'ul'
+    def test_lists(self):
+        md = """
+- This is a list
+- with items
+- and *more* items
 
-        test = """* alskjflkasjd
-* aslkjflkjsadflk
- aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'p'
+1. This is an `ordered` list
+2. with items
+3. and more items
 
-        test = """1. alskjflkasjd
-2. aslkjflkjsadflk
-3. aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'ol'
+"""
 
-        test = """1.alskjflkasjd
-2. aslkjflkjsadflk
-3. aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'p'
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>This is a list</li><li>with items</li><li>and <i>more</i> items</li></ul><ol><li>This is an <code>ordered</code> list</li><li>with items</li><li>and more items</li></ol></div>",
+        )
 
-        test = """1. alskjflkasjd
-2. aslkjflkjsadflk
-aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'p'
+    def test_headings(self):
+        md = """
+# this is an h1
 
-        test = """1. alskjflkasjd
-2. aslkjflkjsadflk
-4. aslkfjasldkfj"""
-        result = block_to_block_type(test)
-        assert result == 'p'
+this is paragraph text
+
+## this is an h2
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>this is an h1</h1><p>this is paragraph text</p><h2>this is an h2</h2></div>",
+        )
+
+    def test_blockquote(self):
+        md = """
+> This is a
+> blockquote block
+
+this is paragraph text
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>This is a blockquote block</blockquote><p>this is paragraph text</p></div>",
+        )
+
