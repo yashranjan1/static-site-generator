@@ -22,7 +22,7 @@ def copy_files(from_path: str, to_path: str) -> None:
         Copies over the files from static to public.
 
         Takes:
-        `from_path: str` => A path to copy from 
+
         `to_path: str` => A path to copy to
         
         Returns: `None`
@@ -54,7 +54,7 @@ def extract_title(markdown: str) -> str:
         if stripped_line.startswith('# '):
             return stripped_line.lstrip('# ')
 
-    raise Exception('there is no h1 header')
+    raise Exception(f'there is no h1 header in {markdown}')
 
 def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
     """
@@ -87,10 +87,32 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
     file.write(html)
     file.close()
 
+def generate_page_recursive(from_path: str, template_path: str, dest_path: str) -> None:
+    """
+        Recursively runs `generate_page` on all files and subfiles in the `from_path` directory
+
+        Takes:
+        `from_path: str` => the path of the md file to be converted
+        `template_path: str` => the path of the template file 
+        `dest_path: str` => the path of the destination html file
+
+        Returns
+        `None`
+    """
+    files = os.listdir(from_path)
+    for file in files:
+        if os.path.isfile(f'{from_path}/{file}'):
+            new_file_name = f'{file.split('.')[0]}.html'
+            generate_page(f'{from_path}/{file}', template_path, f'{dest_path}/{new_file_name}')
+        else:
+            if not os.path.exists(f'{dest_path}/{file}'):
+                os.mkdir(f'{dest_path}/{file}')
+            generate_page_recursive(f'{from_path}/{file}', template_path, f'{dest_path}/{file}')
+
 def main():
     init()
     copy_files('./static', './public')
-    generate_page('./content/index.md','./template.html','./public/index.html')
+    generate_page_recursive('./content','./template.html','./public')
 
 if __name__ == "__main__":
     main()
