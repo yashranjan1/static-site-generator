@@ -61,9 +61,9 @@ class TestHelperFuntions(unittest.TestCase):
         assert new_nodes[1].text_type == TextType.BOLD
         assert new_nodes[2].text_type == TextType.TEXT
 
-        node = TextNode("This text has some *italics text* in it.", TextType.TEXT)
-        node2 = TextNode("This text has some *more italics text* in it.", TextType.TEXT)
-        new_nodes: List[TextNode] = split_nodes_delimiter([node, node2], "*", TextType.ITALIC) 
+        node = TextNode("This text has some _italics text_ in it.", TextType.TEXT)
+        node2 = TextNode("This text has some _more italics text_ in it.", TextType.TEXT)
+        new_nodes: List[TextNode] = split_nodes_delimiter([node, node2], "_", TextType.ITALIC) 
         assert len(new_nodes) == 6
         assert new_nodes[0].text_type == TextType.TEXT
         assert new_nodes[1].text_type == TextType.ITALIC
@@ -73,7 +73,7 @@ class TestHelperFuntions(unittest.TestCase):
         assert new_nodes[5].text_type == TextType.TEXT
 
         node = TextNode("This text has no delimiters in it.", TextType.TEXT)
-        new_nodes: List[TextNode] = split_nodes_delimiter([node], "*", TextType.ITALIC) 
+        new_nodes: List[TextNode] = split_nodes_delimiter([node], "_", TextType.ITALIC) 
         assert len(new_nodes) == 1
         assert new_nodes[0].text_type == TextType.TEXT
     
@@ -273,7 +273,7 @@ class TestHelperFuntions(unittest.TestCase):
             TextNode("Bold text", TextType.BOLD)
         ]
 
-        assert text_to_textnodes("*Italic text*") == [
+        assert text_to_textnodes("_Italic text_") == [
             TextNode("Italic text", TextType.ITALIC)
         ]
 
@@ -310,7 +310,7 @@ class TestHelperFuntions(unittest.TestCase):
     def test_md_to_block(self):
         test = """# This is a heading
 
-This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+This is a paragraph of text. It has some **bold** and _italic_ words inside of it.
 
 * This is the first list item in a list block
 * This is a list item
@@ -324,7 +324,7 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
         test = """       # This is a heading
 
 
-         This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+         This is a paragraph of text. It has some **bold** and _italic_ words inside of it.
 
 
      * This is the first list item in a list block      
@@ -372,7 +372,7 @@ This is **bolded** paragraph
 text in a p
 tag here
 
-This is another paragraph with *italic* text and `code` here
+This is another paragraph with _italic_ text and `code` here
 
 """
 
@@ -387,7 +387,7 @@ This is another paragraph with *italic* text and `code` here
         md = """
 - This is a list
 - with items
-- and *more* items
+- and _more_ items
 
 1. This is an `ordered` list
 2. with items

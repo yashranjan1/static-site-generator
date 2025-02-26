@@ -80,14 +80,9 @@ def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
     Returns:
     `List[Tuple[alt_text, link_to_image]]`
     """
-
-    alt_text_pattern = r"\!\[(.*?)\]\([\w:/.]*\)"
-    link_pattern = r"\!\[[\s\w\d]*\]\((.*?)\)"
-
-    alt_text_list = re.findall(alt_text_pattern, text)
-    link_list = re.findall(link_pattern, text)
-
-    return list(zip(alt_text_list, link_list))
+    pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    matches = re.findall(pattern, text)
+    return matches
 
 
 def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
@@ -101,13 +96,9 @@ def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
     `List[Tuple[text, link]]`
     """
 
-    text_pattern = r"(?<!!)\[(.*?)\]\([\w:/.]*\)"
-    link_pattern = r"(?<!!)\[[\s\w\d]*\]\((.*?)\)"
-
-    text_list = re.findall(text_pattern, text)
-    link_list = re.findall(link_pattern, text)
-
-    return list(zip(text_list, link_list))
+    pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
+    matches = re.findall(pattern, text)
+    return matches
 
 
 def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
@@ -174,7 +165,7 @@ def text_to_textnodes(text: str) -> List[TextNode]:
     nodes = split_nodes_link(nodes)
 
     nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
-    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
     nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
 
     return nodes
