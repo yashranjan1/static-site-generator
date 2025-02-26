@@ -1,10 +1,11 @@
 import os
+import sys
 from shutil import rmtree, copy
 from helper_functions import markdown_to_html_node
 
 def init() -> None:
     """
-        Prepares the public folder and make sure that all the required folders and files exist
+        Prepares the docs folder and make sure that all the required folders and files exist
 
         Takes:
         
@@ -12,14 +13,14 @@ def init() -> None:
     """
     if not os.path.exists('./static/'):
         raise Exception('static folder must exist')
-    public_path = './public/'
+    public_path = './docs/'
     if os.path.exists(public_path):
         rmtree(public_path)
-    os.mkdir('./public/')
+    os.mkdir('./docs/')
 
 def copy_files(from_path: str, to_path: str) -> None:
     """
-        Copies over the files from static to public.
+        Copies over the files from static to destination.
 
         Takes:
 
@@ -56,7 +57,7 @@ def extract_title(markdown: str) -> str:
 
     raise Exception(f'there is no h1 header in {markdown}')
 
-def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
+def generate_page(from_path: str, template_path: str, dest_path: str, basepath: str) -> None:
     """
         Generates the HTML page
 
@@ -82,12 +83,14 @@ def generate_page(from_path: str, template_path: str, dest_path: str) -> None:
 
     html = html.replace('{{ Title }}', title)
     html = html.replace('{{ Content }}', content)
+    html = html.replace('href="/', f'href="{basepath}')
+    html = html.replace('src="/', f'src="{basepath}')
 
     file = open(dest_path, 'x')
     file.write(html)
     file.close()
 
-def generate_page_recursive(from_path: str, template_path: str, dest_path: str) -> None:
+def generate_page_recursive(from_path: str, template_path: str, dest_path: str, basepath: str) -> None:
     """
         Recursively runs `generate_page` on all files and subfiles in the `from_path` directory
 
@@ -103,16 +106,19 @@ def generate_page_recursive(from_path: str, template_path: str, dest_path: str) 
     for file in files:
         if os.path.isfile(f'{from_path}/{file}'):
             new_file_name = f'{file.split('.')[0]}.html'
-            generate_page(f'{from_path}/{file}', template_path, f'{dest_path}/{new_file_name}')
+            generate_page(f'{from_path}/{file}', template_path, f'{dest_path}/{new_file_name}', basepath)
         else:
             if not os.path.exists(f'{dest_path}/{file}'):
                 os.mkdir(f'{dest_path}/{file}')
-            generate_page_recursive(f'{from_path}/{file}', template_path, f'{dest_path}/{file}')
+            generate_page_recursive(f'{from_path}/{file}', template_path, f'{dest_path}/{file}', basepath)
 
 def main():
+    basepath = "/"
+    if len(sys.argv) == 2:
+        basepath = sys.argv[1]
     init()
-    copy_files('./static', './public')
-    generate_page_recursive('./content','./template.html','./public')
+    copy_files('./static', './docs')
+    generate_page_recursive('./content','./template.html','./docs', basepath)
 
 if __name__ == "__main__":
     main()
